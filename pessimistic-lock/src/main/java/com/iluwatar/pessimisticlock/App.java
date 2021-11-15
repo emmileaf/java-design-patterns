@@ -16,13 +16,10 @@ public class App {
             BookNotFoundException,
             LockException {
 
-        // bookRepository imitates a simple database
+        // TODO: End-to-end test scenario below - move to a different location later?
+
+        // bookRepository represents a simple database
         var bookRepository = new BookRepository();
-
-        // aliceSession and bobSession imitate two concurrent user sessions
-        final var aliceSession = new Session("Alice", "1", bookRepository);
-        final var bobSession = new Session("Bob", "2", bookRepository);
-
         // consider a repository of two book objects
         var book1Id = "1";
         var book2Id = "2";
@@ -35,28 +32,24 @@ public class App {
         bookRepository.add(book2); // adding a book with empty title and author
         LOGGER.info("An empty book with id {} was added to repository", book2.getId());
 
-        // Alice and Bob try to check out books concurrently
-        aliceSession.checkOut(book1Id); // should succeed, acquired lock
-        bobSession.checkOut(book2Id); // should succeed, acquired lock
+        // set up a SessionManager to let user sessions access the book repository
+        var sessionManager = new SessionManager(bookRepository);
+        // Alice and Bob represent two concurrent user sessions
+        var aliceSession = sessionManager.newSession("Alice");
+        var bobSession = sessionManager.newSession("Bob");
 
-        try {
-            aliceSession.checkOut(book2Id); // should fail, bobSession has object lock
-        } catch (LockException e) {
-            LOGGER.info("Exception: {}", e.getMessage());
-        }
+        // Alice and Bob try to check out books concurrently
+        var aliceBook1 = sessionManager.checkout(aliceSession, book1Id); // should succeed, acquired lock
+        var bobBook2 =  sessionManager.checkout(bobSession, book2Id); // should succeed, acquired lock
+
+        var aliceBook2 = sessionManager.checkout(aliceSession, book2Id); // should fail, bobSession has object lock
+
 
         // Alice edits a book which Bob tries to check out, during and after the edit
+        sessionManager.write(aliceSession, book1Id, "Title", "Kama Sutra"); // Alice has updated book title
 
-        aliceSession.editTitle(1, "Kama Sutra"); // Alice has updated book title
-
-        try {
-            bobSession.checkOut(book1Id); // should fail
-        } catch (LockException e) {
-            LOGGER.info("Exception: {}", e.getMessage());
-        }
-
-        // TODO: aliceSession should commit changes to bookRepository and "return" book (releases lock)
-        bobSession.checkOut(book1Id); // should succeed after Alice commits, TODO: check that book has updated title
+        var bobBook1 =  sessionManager.checkout(bobSession, book1Id); // should succeed, since Alice's write should release lock
+        var book1updated = sessionManager.read(bobSession, book1Id); // book should have updated title
 
     }
 }

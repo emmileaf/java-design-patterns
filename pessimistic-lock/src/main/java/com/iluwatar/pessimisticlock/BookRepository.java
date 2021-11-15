@@ -51,7 +51,7 @@ public class BookRepository {
     /**
      * Updates book in collection
      */
-    public void update(Book book) throws BookNotFoundException, LockException {
+    public void update(Book book) throws BookNotFoundException {
         if (!collection.containsKey(book.getId())) {
             throw new BookNotFoundException("Not found book with id: " + book.getId());
         }
