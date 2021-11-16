@@ -38,9 +38,9 @@ public class App {
             LOGGER.info("Alice initiated WRITE operation on book {}.", book1.getId());
             try {
                 sessionManager.write(aliceSession, book1Id, "Title", "Harry Potter");
-                LOGGER.info("Alice performed WRITE operation on book {}.", book1.getId());
+                LOGGER.info("EXPECTED: Alice performed WRITE operation on book {}.", book1.getId());
             } catch (Exception e) {
-                LOGGER.error("Alice is unable to perform WRITE operation on book {}.", book1.getId());
+                LOGGER.error("UNEXPECTED: Alice is unable to perform WRITE operation on book {}.", book1.getId());
             }
         }).start();
 
@@ -49,9 +49,9 @@ public class App {
             try {
                 LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
                 String newTitle = sessionManager.read(bobSession, book1Id, "Title");
-                LOGGER.error("Bob performed READ on book {}, but shouldn't be allowed as Alice edits.", book1.getId());
+                LOGGER.error("UNEXPECTED: Bob performed READ on book {}, but shouldn't be allowed.", book1.getId());
             } catch (LockException e1) {
-                LOGGER.info("Bob is unable to perform READ on book {} while Alice is editing.", book1.getId());
+                LOGGER.info("EXPECTED: Bob is unable to perform READ on book {} while Alice edits.", book1.getId());
             } catch (Exception e2) {
                 LOGGER.error(e2.getMessage());
             }
@@ -62,9 +62,9 @@ public class App {
             try {
                 LOGGER.info("Bob initiated WRITE operation on book {}.", book1.getId());
                 sessionManager.write(bobSession, book1Id, "Title", "Watership Down");
-                LOGGER.error("Bob can perform WRITE on book {}, but should not be while Alice edits.", book1.getId());
+                LOGGER.error("UNEXPECTED: Bob can perform WRITE on book {}, but shouldn't be allowed.", book1.getId());
             } catch (LockException e1) {
-                LOGGER.info("Bob is unable to perform WRITE on book {} while Alice is editing.", book1.getId());
+                LOGGER.info("EXPECTED: Bob is unable to perform WRITE on book {} while Alice edits.", book1.getId());
             } catch (Exception e2) {
                 LOGGER.error(e2.getMessage());
             }
@@ -73,7 +73,7 @@ public class App {
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
-            LOGGER.error("Time stall of two seconds was interrupted");
+            LOGGER.error("UNEXPECTED: Time stall of two seconds was interrupted");
         }
 
         new Thread(() -> {
@@ -82,12 +82,12 @@ public class App {
                 LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
                 String newTitle = sessionManager.read(bobSession, book1Id, "Title"); // should succeed to read
                 if (newTitle == "Harry Potter") {
-                    LOGGER.info("Bob is able perform READ on book {} and fetch the updated title.", book1.getId());
+                    LOGGER.info("EXPECTED: Bob is able perform READ on book {} to fetch updated title.", book1.getId());
                 } else {
-                    LOGGER.error("Bob did not fetch the correct title for on book {} updated by Alice.", book1.getId());
+                    LOGGER.error("UNEXPECTED: Bob did not fetch the updated title for book {}.", book1.getId());
                 }
             } catch (Exception e) {
-                LOGGER.error(e.getMessage());
+                LOGGER.error("UNEXPECTED: " + e.getMessage());
             }
         }).start();
 
