@@ -19,12 +19,12 @@ public class App {
         // TODO: End-to-end test scenario below - move to a different location later?
 
         // bookRepository represents a simple database
-        var bookRepository = new BookRepository();
+        BookRepository bookRepository = new BookRepository();
         // consider a repository of two book objects
-        var book1Id = "1";
-        var book2Id = "2";
-        var book1 = new Book();
-        var book2 = new Book();
+        long book1Id = 1;
+        long book2Id = 2;
+        Book book1 = new Book();
+        Book book2 = new Book();
         book1.setId(book1Id);
         book2.setId(book2Id);
         bookRepository.add(book1); // adding a book with empty title and author
@@ -34,6 +34,7 @@ public class App {
 
         // set up a SessionManager to let user sessions access the book repository
         var sessionManager = new SessionManager(bookRepository);
+
         // Alice and Bob represent two concurrent user sessions
         var aliceSession = sessionManager.newSession("Alice");
         var bobSession = sessionManager.newSession("Bob");
@@ -49,7 +50,7 @@ public class App {
         sessionManager.write(aliceSession, book1Id, "Title", "Kama Sutra"); // Alice has updated book title
 
         var bobBook1 =  sessionManager.checkout(bobSession, book1Id); // should succeed, since Alice's write should release lock
-        var book1updated = sessionManager.read(bobSession, book1Id); // book should have updated title
+        String newTitle1 = sessionManager.read(bobSession, book1Id, "Title"); // book should have updated title
 
     }
 }
