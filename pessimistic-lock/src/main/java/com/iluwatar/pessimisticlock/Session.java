@@ -1,6 +1,7 @@
 package com.iluwatar.pessimisticlock;
 
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Session is a package-private class that represents a user session (with name and id assigned)
@@ -30,6 +31,11 @@ class Session {
     /** Returns the session user name. */
     String getUser() {
         return this.user;
+    }
+
+    /** Returns the set of lockable IDs currently held by the session. */
+    Set<Long> getLocks() {
+        return this.books.keySet();
     }
 
     /**
