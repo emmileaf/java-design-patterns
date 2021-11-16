@@ -18,7 +18,7 @@ public class SessionManager {
     }
 
     private boolean hasLock(Long lockable, String owner) {
-        return (locks.get(lockable).equals(owner));
+        return (locks.get(lockable) != null && locks.get(lockable).equals(owner));
     }
 
     private void acquireLock(Long lockable, String owner) throws BookNotFoundException, LockException {
@@ -33,7 +33,7 @@ public class SessionManager {
         }
     }
 
-    private void releaseLock(Long lockable, String owner) throws BookNotFoundException, LockException {
+    private void releaseLock(Long lockable, String owner) {
         Session userSession = sessions.get(owner);
         if (userSession != null && hasLock(lockable, owner)) {
             userSession.releaseBook(lockable);
@@ -66,25 +66,25 @@ public class SessionManager {
         // Acquire read lock on book, modify entries, then commit changes to book repo and release lock
         Session userSession = sessions.get(sessionId);
         if (userSession != null) {
-            // acquire lock
             try {
+                // acquire lock
                 acquireLock(bookId, sessionId);
-            } catch (LockException e1) {
-                return false;
-            } catch (BookNotFoundException e2) {
-                return false;
-            }
-            // edit record and commit changes
-            Book updated = userSession.editBook(bookId, writeField, writeValue);
-
-            // commit changes and release lock
-            try {
+                // perform operations and edit record; 2s time stall to imitate a computationally heavy operation
+                Thread.sleep(2000);
+                Book updated = userSession.editBook(bookId, writeField, writeValue);
+                // commit changes
                 bookRepo.update(updated);
+                // release lock
                 releaseLock(bookId, sessionId);
                 return true;
-            } catch (LockException e1) {
+            } catch (LockException | BookNotFoundException e1) {
+                // issue with acquiring lock
                 return false;
-            } catch (BookNotFoundException e2) {
+            } catch (IllegalArgumentException e2) {
+                // editBook is given an invalid write field
+                return false;
+            } catch (InterruptedException e3) {
+                // Thread.sleep interrupted
                 return false;
             }
         }
@@ -95,24 +95,18 @@ public class SessionManager {
         // Acquire read lock on book, return field value read, then release lock
         Session userSession = sessions.get(sessionId);
         if (userSession != null) {
-            // acquire lock
             try {
+                // acquire lock
                 acquireLock(bookId, sessionId);
-            } catch (LockException e1) {
-                return null;
-            } catch (BookNotFoundException e2) {
-                return null;
-            }
-            // read field value from record
-            String result = userSession.readBook(bookId, readField);
-
-            // release lock and return result
-            try {
+                // read field value from record
+                String result = userSession.readBook(bookId, readField);
+                // release lock and return result
                 releaseLock(bookId, sessionId);
                 return result;
-            } catch (LockException e1) {
+            } catch (LockException | BookNotFoundException e1) {
                 return null;
-            } catch (BookNotFoundException e2) {
+            } catch (IllegalArgumentException e2) {
+                // readBook is given an invalid write field
                 return null;
             }
         }

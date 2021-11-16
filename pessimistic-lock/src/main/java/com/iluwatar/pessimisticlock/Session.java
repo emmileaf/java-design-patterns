@@ -3,13 +3,14 @@ package com.iluwatar.pessimisticlock;
 import java.util.HashMap;
 
 class Session {
-    private String user;
-    private String id;
-    private HashMap<Long, Book> books; // a collection of books where session has acquired lock
+    private final String user;
+    private final String id;
+    private final HashMap<Long, Book> books; // a collection of books where session has acquired lock
 
     public Session(String user, String id) {
         this.user = user;
         this.id = id;
+        this.books = new HashMap<>();
     }
     public String getId() {
         return this.id;
@@ -62,7 +63,7 @@ class Session {
         return existing;
     }
 
-    public String readBook(Long bookId, String field) {
+    public String readBook(Long bookId, String field) throws IllegalArgumentException {
         // @TODO: return value of field
         Book existing = books.get(bookId);
         if (field == "Author") {
