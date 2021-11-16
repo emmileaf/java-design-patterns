@@ -2,56 +2,65 @@ package com.iluwatar.pessimisticlock;
 
 import java.util.HashMap;
 
+/**
+ * Session is a package-private class that represents a user session (with name and id assigned)
+ * and holds a collection of books that it currently has access to (lock acquired).
+ * Session creation and management is handled by the {@link SessionManager}.
+ */
 class Session {
     private final String user;
     private final String id;
     private final HashMap<Long, Book> books; // a collection of books where session has acquired lock
 
-    public Session(String user, String id) {
+    /** Constructor to initialize a session given user name and ID.
+     *  @param user  - Name of the user owning this session
+     *  @param id    - Session identifier string
+     */
+    Session(String user, String id) {
         this.user = user;
         this.id = id;
         this.books = new HashMap<>();
     }
-    public String getId() {
+
+    /** Returns the session ID. */
+    String getId() {
         return this.id;
     }
 
-    public boolean hasBook(Long bookId) {
-        return books.containsKey(bookId);
+    /** Returns the session user name. */
+    String getUser() {
+        return this.user;
     }
 
-    private Book getBook(Long bookId) {
-        return books.get(bookId);
-    }
-
-    public void checkoutBook(Long bookId, Book book) {
-        // After acquiring read lock on book
-        if (!books.containsKey(bookId)) {
-            books.put(bookId, book);
+    /**
+     * Adds a book object to the session's collection of lock-obtained books.
+     * @param book  - Book object from repository, with loack already obtained
+     */
+     void checkoutBook(Book book) {
+         if (!books.containsKey(book.getId())) {
+            books.put(book.getId(), book);
         }
     }
 
-    public void releaseBook(Long bookId) {
-        // Before releasing read lock on book, fetch updated Book to commit to book repo
+    /**
+     * Removes a book object from the session's collection of lock-obtained books.
+     * Called after changes are committed to the book repository, and before releasing its lock.
+     * @param bookId  - Identifier for Book object to remove from collection
+     */
+    void releaseBook(Long bookId) {
         if (books.containsKey(bookId)) {
             books.remove(bookId);
         }
     }
 
-//    public Book returnBook(Long bookId) throws BookNotFoundException {
-//        // Before releasing read lock on book, fetch updated Book to commit to book repo
-//        Book updated;
-//        if (books.containsKey(bookId)) {
-//            updated = books.get(bookId);
-//            books.remove(bookId);
-//            return updated;
-//        } else {
-//            throw new BookNotFoundException("Session " + id + " does not have access to Book " + bookId.toString());
-//        }
-//    }
-
-    public Book editBook(Long bookId, String field, String value) throws IllegalArgumentException {
-        // @TODO: return edited copy
+    /**
+     * Performs write operation to modify the given field for a book.
+     * @param bookId  - Identifier for Book object to modify in collection
+     * @param field   - Specifies which field (Title/Author) in a Book object to edit.
+     * @param value   - Specifies the desired value for the given field.
+     * @return the modified Book object.
+     */
+    Book editBook(Long bookId, String field, String value) throws IllegalArgumentException {
         Book existing = books.get(bookId);
         if (field == "Author") {
             existing.setAuthor(value);
@@ -60,11 +69,17 @@ class Session {
         } else {
             throw new IllegalArgumentException(field + " is not a valid Book field.");
         }
+        books.put(bookId, existing);
         return existing;
     }
 
-    public String readBook(Long bookId, String field) throws IllegalArgumentException {
-        // @TODO: return value of field
+    /**
+     * Performs read operation to fetch the given field for a book.
+     * @param bookId  - Identifier for Book object to access from collection
+     * @param field   - Specifies which field (Title/Author) in a Book object to fetch.
+     * @return the value of the fetched field.
+     */
+    String readBook(Long bookId, String field) throws IllegalArgumentException {
         Book existing = books.get(bookId);
         if (field == "Author") {
             return existing.getAuthor();
