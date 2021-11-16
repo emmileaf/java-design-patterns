@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Modified from package com.iluwatar.versionnumber
  * This repository represents simplified database.
  * As a typical database do, repository operates with copies of object.
  * So client and repo has different copies of book, which can lead to concurrency conflicts

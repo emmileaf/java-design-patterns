@@ -23,6 +23,7 @@
 
 package com.iluwatar.pessimisticlock;
 
+/** Modified from package com.iluwatar.versionnumber */
 public class Book {
     private Long id;
     private String title = "";

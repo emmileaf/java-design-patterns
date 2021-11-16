@@ -1,5 +1,8 @@
 package com.iluwatar.pessimisticlock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,6 +11,7 @@ import java.util.Map;
  * Each user session requires lock to load record and perform any operation on Book objects from the repository
  */
 public class SessionManager {
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     private final Map<Long, String> locks;
     private final HashMap<String, Session> sessions;
     private final BookRepository bookRepo;
@@ -53,10 +57,9 @@ public class SessionManager {
      * @param bookId - Identifier of book object to performing the operation on
      * @param writeField - String specifying which field to update in the book
      * @param writeValue - String specifying what value to update field to
-     * @return boolean status indicating success of operation
      */
-    public boolean write(String sessionId, Long bookId, String writeField, String writeValue) {
-        // Acquire read lock on book, modify entries, then commit changes to book repo and release lock
+    public void write(String sessionId, Long bookId, String writeField, String writeValue)
+            throws LockException, BookNotFoundException, IllegalArgumentException, InterruptedException {
         Session userSession = sessions.get(sessionId);
         if (userSession != null) {
             try {
@@ -69,19 +72,22 @@ public class SessionManager {
                 bookRepo.update(updated);
                 // release lock
                 releaseLock(bookId, sessionId);
-                return true;
-            } catch (LockException | BookNotFoundException e1) {
-                // issue with acquiring lock
-                return false;
-            } catch (IllegalArgumentException e2) {
-                // editBook is given an invalid write field
-                return false;
-            } catch (InterruptedException e3) {
-                // Thread.sleep interrupted
-                return false;
+            } catch (LockException e1) {
+                LOGGER.info("Could not acquire lock on book {}.", bookId);
+                throw e1;
+            } catch (BookNotFoundException e2) {
+                LOGGER.info("Book {} not found.", bookId);
+                throw e2;
+            } catch (IllegalArgumentException e3) {
+                LOGGER.info("{} is not an invalid field for book {}.", writeField, bookId);
+                throw e3;
+            } catch (InterruptedException e4) {
+                LOGGER.info("Thread.sleep is interrupted for book {}.", bookId);
+                throw e4;
             }
+        } else {
+            throw new IllegalArgumentException("Session " + sessionId + " is not found.");
         }
-        return false;
     }
 
     /**
@@ -89,10 +95,10 @@ public class SessionManager {
      * @param sessionId - Identifier of user session performing the operation
      * @param bookId - Identifier of book object to performing the operation on
      * @param readField - String specifying which field to read value from the book
-     * @return string value fetched by operation, or null if unsuccessful
+     * @return string value fetched by operation
      */
-    public String read(String sessionId, Long bookId, String readField) {
-        // Acquire read lock on book, return field value read, then release lock
+    public String read(String sessionId, Long bookId, String readField)
+            throws LockException, BookNotFoundException, IllegalArgumentException {
         Session userSession = sessions.get(sessionId);
         if (userSession != null) {
             try {
@@ -103,14 +109,19 @@ public class SessionManager {
                 // release lock and return result
                 releaseLock(bookId, sessionId);
                 return result;
-            } catch (LockException | BookNotFoundException e1) {
-                return null;
-            } catch (IllegalArgumentException e2) {
-                // readBook is given an invalid write field
-                return null;
+            } catch (LockException e1) {
+                LOGGER.info("Could not acquire lock on book {}.", bookId);
+                throw e1;
+            } catch (BookNotFoundException e2) {
+                LOGGER.info("Book {} not found.", bookId);
+                throw e2;
+            } catch (IllegalArgumentException e3) {
+                LOGGER.info("{} is not an invalid field for book {}.", readField, bookId);
+                throw e3;
             }
+        } else {
+            throw new IllegalArgumentException("Session " + sessionId + " is not found.");
         }
-        return null;
     }
 
     private boolean hasLock(Long lockable, String owner) {

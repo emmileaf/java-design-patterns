@@ -12,9 +12,7 @@ public class App {
      * @param args command line args
      */
     public static void main(String[] args) throws
-            BookDuplicateException,
-            BookNotFoundException,
-            LockException {
+            BookDuplicateException {
 
         // TODO: End-to-end test scenario below - incorporate into test suite later
 
@@ -38,33 +36,37 @@ public class App {
         // Alice and Bob try to operate on books concurrently
         new Thread(() -> {
             LOGGER.info("Alice initiated WRITE operation on book {}.", book1.getId());
-            Boolean written = sessionManager.write(aliceSession, book1Id, "Title", "Harry Potter");
-            if (written == true) {
+            try {
+                sessionManager.write(aliceSession, book1Id, "Title", "Harry Potter");
                 LOGGER.info("Alice performed WRITE operation on book {}.", book1.getId());
-            } else {
+            } catch (Exception e) {
                 LOGGER.error("Alice is unable to perform WRITE operation on book {}.", book1.getId());
             }
         }).start();
 
         new Thread(() -> {
             // read operation should fail to acquire lock
-            LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
-            String newTitle = sessionManager.read(bobSession, book1Id, "Title"); // should fail to acquire lock
-            if (newTitle == null) {
+            try {
+                LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
+                String newTitle = sessionManager.read(bobSession, book1Id, "Title");
+                LOGGER.error("Bob performed READ on book {}, but shouldn't be allowed as Alice edits.", book1.getId());
+            } catch (LockException e1) {
                 LOGGER.info("Bob is unable to perform READ on book {} while Alice is editing.", book1.getId());
-            } else {
-                LOGGER.error("Bob performed READ on book {}, but shouldn't be allowed while Alice edits.", book1.getId());
+            } catch (Exception e2) {
+                LOGGER.error(e2.getMessage());
             }
         }).start();
 
         new Thread(() -> {
             // write operation should fail to acquire lock
-            LOGGER.info("Bob initiated WRITE operation on book {}.", book1.getId());
-            Boolean written = sessionManager.write(bobSession, book1Id, "Title", "Watership Down");
-            if (written == false) {
-                LOGGER.info("Bob is unable to perform WRITE on book {} while Alice is editing.", book1.getId());
-            } else {
+            try {
+                LOGGER.info("Bob initiated WRITE operation on book {}.", book1.getId());
+                sessionManager.write(bobSession, book1Id, "Title", "Watership Down");
                 LOGGER.error("Bob can perform WRITE on book {}, but should not be while Alice edits.", book1.getId());
+            } catch (LockException e1) {
+                LOGGER.info("Bob is unable to perform WRITE on book {} while Alice is editing.", book1.getId());
+            } catch (Exception e2) {
+                LOGGER.error(e2.getMessage());
             }
         }).start();
 
@@ -75,12 +77,17 @@ public class App {
         }
 
         new Thread(() -> {
-            LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
-            String newTitle = sessionManager.read(bobSession, book1Id, "Title"); // should succeed to read
-            if (newTitle == "Harry Potter") {
-                LOGGER.info("Bob is able perform READ on book {} and fetch the title updated by Alice.", book1.getId());
-            } else {
-                LOGGER.error("Bob did not fetch the correct title for on book {} updated by Alice.", book1.getId());
+            // read operation should now succeed
+            try {
+                LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
+                String newTitle = sessionManager.read(bobSession, book1Id, "Title"); // should succeed to read
+                if (newTitle == "Harry Potter") {
+                    LOGGER.info("Bob is able perform READ on book {} and fetch the updated title.", book1.getId());
+                } else {
+                    LOGGER.error("Bob did not fetch the correct title for on book {} updated by Alice.", book1.getId());
+                }
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage());
             }
         }).start();
 
