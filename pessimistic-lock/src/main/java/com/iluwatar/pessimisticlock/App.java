@@ -11,10 +11,9 @@ public class App {
      *
      * @param args command line args
      */
-    public static void main(String[] args) throws
-            BookDuplicateException {
+    public static void main(String[] args) {
 
-        // TODO: End-to-end test scenario below - incorporate into test suite later
+        // End-to-end test scenario below - see test suite for more examples
 
         // bookRepository represents a simple database
         BookRepository bookRepository = new BookRepository();
@@ -23,15 +22,19 @@ public class App {
         Book book1 = new Book();
         book1.setId(book1Id);
         book1.setTitle("The Hobbit");
-        bookRepository.add(book1); // adding a book and pre-setting its title
-        LOGGER.info("A book with id {} and title {} was added to repository", book1.getId(), book1.getTitle());
+        try {
+            bookRepository.add(book1); // adding a book and pre-setting its title
+            LOGGER.info("A book with id {} and title {} was added to repository", book1.getId(), book1.getTitle());
+        } catch (BookException e) {
+            LOGGER.error("UNEXPECTED: book with id {} already exists in repository", book1.getId());
+        }
 
         // set up a SessionManager to let user sessions access the book repository
-        var sessionManager = new SessionManager(bookRepository);
+        SessionManager sessionManager = new SessionManager(bookRepository);
 
         // Alice and Bob represent two concurrent user sessions
-        var aliceSession = sessionManager.newSession("Alice");
-        var bobSession = sessionManager.newSession("Bob");
+        String aliceSession = sessionManager.newSession("Alice");
+        String bobSession = sessionManager.newSession("Bob");
 
         // Alice and Bob try to operate on books concurrently
         new Thread(() -> {

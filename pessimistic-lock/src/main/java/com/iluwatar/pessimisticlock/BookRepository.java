@@ -40,9 +40,9 @@ public class BookRepository {
      * Adds book to collection.
      * Actually we are putting copy of book (saving a book by value, not by reference);
      */
-    public void add(Book book) throws BookDuplicateException {
+    public void add(Book book) throws BookException {
         if (collection.containsKey(book.getId())) {
-            throw new BookDuplicateException("Duplicated book with id: " + book.getId());
+            throw new BookException("Duplicated book with id: " + book.getId());
         }
 
         // add copy of the book
@@ -52,9 +52,9 @@ public class BookRepository {
     /**
      * Updates book in collection
      */
-    public void update(Book book) throws BookNotFoundException {
+    public void update(Book book) throws BookException {
         if (!collection.containsKey(book.getId())) {
-            throw new BookNotFoundException("Not found book with id: " + book.getId());
+            throw new BookException("Not found book with id: " + book.getId());
         }
 
         // save book copy to repository
@@ -65,9 +65,9 @@ public class BookRepository {
      * Returns book representation to the client.
      * Representation means we are returning copy of the book.
      */
-    public Book get(long bookId) throws BookNotFoundException {
+    public Book get(long bookId) throws BookException {
         if (!collection.containsKey(bookId)) {
-            throw new BookNotFoundException("Not found book with id: " + bookId);
+            throw new BookException("Not found book with id: " + bookId);
         }
 
         // return copy of the book

@@ -24,10 +24,12 @@
 package com.iluwatar.pessimisticlock;
 
 /**
- * When someone has tried to add a book which repository already have.
+ * When someone has tried to perform an illegal operation for a book in the book repository.
+ * 1) Duplication scenario - trying to add a book that already exists in repo
+ * 2) Not found scenario - trying to get a book that does not exist in repo
  */
-public class BookDuplicateException extends Exception {
-    public BookDuplicateException(String message) {
+public class BookException extends Exception {
+    public BookException(String message) {
         super(message);
     }
 }

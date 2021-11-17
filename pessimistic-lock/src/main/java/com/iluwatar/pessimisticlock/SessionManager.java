@@ -52,6 +52,13 @@ public class SessionManager {
     }
 
     /**
+     * Returns number of connected user sessions
+     */
+    public int numSessions() {
+        return sessions.size();
+    }
+
+    /**
      * Executes a write request initiated by a given user session on a book.
      * @param sessionId - Identifier of user session performing the operation
      * @param bookId - Identifier of book object to performing the operation on
@@ -59,7 +66,7 @@ public class SessionManager {
      * @param writeValue - String specifying what value to update field to
      */
     public void write(String sessionId, Long bookId, String writeField, String writeValue)
-            throws LockException, BookNotFoundException, IllegalArgumentException, InterruptedException {
+            throws LockException, BookException, IllegalArgumentException, InterruptedException {
         Session userSession = sessions.get(sessionId);
         if (userSession != null) {
             try {
@@ -75,7 +82,7 @@ public class SessionManager {
             } catch (LockException e1) {
                 LOGGER.info("Could not acquire lock on book {}.", bookId);
                 throw e1;
-            } catch (BookNotFoundException e2) {
+            } catch (BookException e2) {
                 LOGGER.info("Book {} not found.", bookId);
                 throw e2;
             } catch (IllegalArgumentException e3) {
@@ -98,7 +105,7 @@ public class SessionManager {
      * @return string value fetched by operation
      */
     public String read(String sessionId, Long bookId, String readField)
-            throws LockException, BookNotFoundException, IllegalArgumentException {
+            throws LockException, BookException, IllegalArgumentException {
         Session userSession = sessions.get(sessionId);
         if (userSession != null) {
             try {
@@ -112,7 +119,7 @@ public class SessionManager {
             } catch (LockException e1) {
                 LOGGER.info("Could not acquire lock on book {}.", bookId);
                 throw e1;
-            } catch (BookNotFoundException e2) {
+            } catch (BookException e2) {
                 LOGGER.info("Book {} not found.", bookId);
                 throw e2;
             } catch (IllegalArgumentException e3) {
@@ -128,7 +135,7 @@ public class SessionManager {
         return (locks.get(lockable) != null && locks.get(lockable).equals(owner));
     }
 
-    private void acquireLock(Long lockable, String owner) throws BookNotFoundException, LockException {
+    private void acquireLock(Long lockable, String owner) throws BookException, LockException {
         Session userSession = sessions.get(owner);
         if (userSession != null && !hasLock(lockable, owner)) {
             if (locks.containsKey(lockable)) {
