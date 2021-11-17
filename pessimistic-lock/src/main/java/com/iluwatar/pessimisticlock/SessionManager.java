@@ -86,7 +86,7 @@ public class SessionManager {
                 LOGGER.info("Book {} not found.", bookId);
                 throw e2;
             } catch (IllegalArgumentException e3) {
-                LOGGER.info("{} is not an invalid field for book {}.", writeField, bookId);
+                LOGGER.info("{} is not a valid field for book {}.", writeField, bookId);
                 throw e3;
             } catch (InterruptedException e4) {
                 LOGGER.info("Thread.sleep is interrupted for book {}.", bookId);
@@ -123,7 +123,7 @@ public class SessionManager {
                 LOGGER.info("Book {} not found.", bookId);
                 throw e2;
             } catch (IllegalArgumentException e3) {
-                LOGGER.info("{} is not an invalid field for book {}.", readField, bookId);
+                LOGGER.info("{} is not a valid field for book {}.", readField, bookId);
                 throw e3;
             }
         } else {
@@ -139,7 +139,7 @@ public class SessionManager {
         Session userSession = sessions.get(owner);
         if (userSession != null && !hasLock(lockable, owner)) {
             if (locks.containsKey(lockable)) {
-                throw new LockException("Another user has lock on " + lockable);
+                throw new LockException("Another user has lock on book " + lockable);
             } else {
                 locks.put(lockable, owner); // acquire lock, then load data
                 userSession.checkoutBook(bookRepo.get(lockable));
