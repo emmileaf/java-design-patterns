@@ -1,7 +1,10 @@
 package com.iluwatar.pessimisticlock;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,11 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SessionManagerTest {
 
-    private final BookRepository bookRepo = new BookRepository();
+    private BookRepository bookRepo;
     private SessionManager manager;
 
     @BeforeEach
     void setUp() throws BookException {
+        bookRepo = new BookRepository();
         Book book1 = new Book();
         Book book2 = new Book();
         book1.setId((long) 1);
@@ -115,11 +119,7 @@ class SessionManagerTest {
     @Test
     void testConcurrentWriteSessions() {
 
-        Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread th, Throwable ex) {
-            }
-        };
+        AtomicReference<String> failure = new AtomicReference<>();
 
         String aliceSession = manager.newSession("Alice");
         String bobSession = manager.newSession("Bob");
@@ -129,16 +129,81 @@ class SessionManagerTest {
                     manager.write(aliceSession, (long) 1, "Title", "New Title Alice")
             );
         });
+        aliceWrite.setUncaughtExceptionHandler((th, ex) -> failure.set(ex.getMessage()));
         aliceWrite.start();
 
         Thread bobWrite = new Thread(() -> {
-            Exception e = assertThrows(LockException.class, () ->
-                    manager.write(bobSession, (long) 1, "Title", "New Title Bob")
+            Exception e = assertThrows(LockException.class, () -> {
+                        Thread.sleep(1000);
+                        manager.write(bobSession, (long) 1, "Title", "New Title Bob");
+                    }
             );
             assertEquals("Another user has lock on book 1", e.getMessage());
         });
-        bobWrite.setUncaughtExceptionHandler((th, ex) -> {});
+        bobWrite.setUncaughtExceptionHandler((th, ex) -> failure.set(ex.getMessage()));
         bobWrite.start();
+
+        try {
+            aliceWrite.join();
+            bobWrite.join();
+        } catch (InterruptedException e1) {
+            fail("Thread interrupted");
+        }
+
+        if (failure.get() != null){
+            fail(failure.toString());
+        }
+    }
+
+    @Test
+    void testConcurrentReadAfterWrite() {
+
+        AtomicReference<String> failure = new AtomicReference<>();
+
+        String aliceSession = manager.newSession("Alice");
+        String bobSession = manager.newSession("Bob");
+
+        Thread aliceWrite = new Thread(() -> {
+            assertDoesNotThrow(() ->
+                manager.write(aliceSession, (long) 1, "Title", "New Title Alice")
+            );
+        });
+        aliceWrite.setUncaughtExceptionHandler((th, ex) -> failure.set(ex.getMessage()));
+        aliceWrite.start();
+
+        Thread bobRead1 = new Thread(() -> {
+            Exception e = assertThrows(LockException.class, () -> {
+                        Thread.sleep(1000);
+                        manager.read(bobSession, (long) 1, "Title");
+                    }
+            );
+            assertEquals("Another user has lock on book 1", e.getMessage());
+        });
+        bobRead1.setUncaughtExceptionHandler((th, ex) -> failure.set(ex.getMessage()));
+        bobRead1.start();
+
+        Thread bobRead2 = new Thread(() -> {
+            assertDoesNotThrow(() -> {
+                        Thread.sleep(2000);
+                        assertEquals("Book Two", manager.read(bobSession, (long) 2, "Title"));
+                    }
+            );
+        });
+        bobRead2.setUncaughtExceptionHandler((th, ex) -> failure.set(ex.getMessage()));
+        bobRead2.start();
+
+        try {
+            aliceWrite.join();
+            bobRead1.join();
+            bobRead2.join();
+        } catch (InterruptedException e1) {
+            fail("Thread interrupted");
+        }
+
+        if (failure.get() != null){
+            fail(failure.toString());
+        }
+
     }
 
 }

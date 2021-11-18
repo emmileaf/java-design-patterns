@@ -50,6 +50,7 @@ public class App {
         new Thread(() -> {
             // read operation should fail to acquire lock
             try {
+                Thread.sleep(1000);
                 LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
                 String newTitle = sessionManager.read(bobSession, book1Id, "Title");
                 LOGGER.error("UNEXPECTED: Bob performed READ on book {}, but shouldn't be allowed.", book1.getId());
@@ -63,6 +64,7 @@ public class App {
         new Thread(() -> {
             // write operation should fail to acquire lock
             try {
+                Thread.sleep(1000);
                 LOGGER.info("Bob initiated WRITE operation on book {}.", book1.getId());
                 sessionManager.write(bobSession, book1Id, "Title", "Watership Down");
                 LOGGER.error("UNEXPECTED: Bob can perform WRITE on book {}, but shouldn't be allowed.", book1.getId());
@@ -73,15 +75,10 @@ public class App {
             }
         }).start();
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            LOGGER.error("UNEXPECTED: Time stall of two seconds was interrupted");
-        }
-
         new Thread(() -> {
             // read operation should now succeed
             try {
+                Thread.sleep(2000);
                 LOGGER.info("Bob initiated READ operation on book {}.", book1.getId());
                 String newTitle = sessionManager.read(bobSession, book1Id, "Title"); // should succeed to read
                 if (newTitle == "Harry Potter") {
