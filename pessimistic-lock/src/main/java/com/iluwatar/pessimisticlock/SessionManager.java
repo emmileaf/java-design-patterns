@@ -13,7 +13,7 @@ import java.util.Map;
 public class SessionManager {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     private final Map<Long, String> locks;
-    private final HashMap<String, Session> sessions;
+    private final Map<String, Session> sessions;
     private final BookRepository bookRepo;
     private int sessionId;
 

@@ -1,6 +1,7 @@
 package com.iluwatar.pessimisticlock;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -11,7 +12,7 @@ import java.util.Set;
 class Session {
     private final String user;
     private final String id;
-    private final HashMap<Long, Book> books; // a collection of books where session has acquired lock
+    private final Map<Long, Book> books; // a collection of books where session has acquired lock
 
     /** Constructor to initialize a session given user name and ID.
      *  @param user  - Name of the user owning this session

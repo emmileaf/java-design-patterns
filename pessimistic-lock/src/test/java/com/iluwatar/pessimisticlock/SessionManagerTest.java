@@ -5,19 +5,24 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for {@link SessionManager}
  */
 class SessionManagerTest {
 
-    private BookRepository bookRepo;
     private SessionManager manager;
+    private String alice = "Alice";
+    private String bob = "Bob";
+    private String title = "Title";
 
     @BeforeEach
     void setUp() throws BookException {
-        bookRepo = new BookRepository();
+        BookRepository bookRepo = new BookRepository();
         Book book1 = new Book();
         Book book2 = new Book();
         book1.setId((long) 1);
@@ -31,16 +36,16 @@ class SessionManagerTest {
 
     @Test
     void testNewSession() {
-        String aliceSession = manager.newSession("Alice");
+        String aliceSession = manager.newSession(alice);
         assertEquals("0", aliceSession);
-        String bobSession = manager.newSession("Bob");
+        String bobSession = manager.newSession(bob);
         assertEquals("1", bobSession);
     }
 
     @Test
     void testRemoveSession() {
-        String aliceSession = manager.newSession("Alice");
-        String bobSession = manager.newSession("Bob");
+        manager.newSession(alice);
+        manager.newSession(bob);
         manager.removeSession("1");
         assertEquals(1, manager.numSessions());
     }
@@ -48,35 +53,35 @@ class SessionManagerTest {
     @Test
     void testNumSessions() {
         assertEquals(0, manager.numSessions());
-        String aliceSession = manager.newSession("Alice");
-        String bobSession = manager.newSession("Bob");
+        manager.newSession(alice);
+        manager.newSession(bob);
         assertEquals(2, manager.numSessions());
     }
 
     @Test
     void testInvalidWriteSession() {
-        String aliceSession = manager.newSession("Alice");
+        manager.newSession(alice);
         String bobSession = "1";
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            manager.write(bobSession, (long) 1, "Title", "New Title");
+            manager.write(bobSession, (long) 1, title, "New Title");
         });
         assertEquals("Session 1 is not found.", e.getMessage());
     }
 
     @Test
     void testInvalidWriteBook() {
-        String aliceSession = manager.newSession("Alice");
+        String aliceSession = manager.newSession(alice);
 
         Exception e = assertThrows(BookException.class, () -> {
-            manager.write(aliceSession, (long) 3, "Title", "New Title");
+            manager.write(aliceSession, (long) 3, title, "New Title");
         });
         assertEquals("Not found book with id: 3", e.getMessage());
     }
 
     @Test
     void testInvalidWriteField() {
-        String aliceSession = manager.newSession("Alice");
+        String aliceSession = manager.newSession(alice);
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> {
             manager.write(aliceSession, (long) 1, "Editor", "New Editor");
@@ -86,31 +91,31 @@ class SessionManagerTest {
 
     @Test
     void testInvalidReadSession() {
-        String aliceSession = manager.newSession("Alice");
+        manager.newSession(alice);
         String bobSession = "1";
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            String result = manager.read(bobSession, (long) 1, "Title");
+            manager.read(bobSession, (long) 1, title);
         });
         assertEquals("Session 1 is not found.", e.getMessage());
     }
 
     @Test
     void testInvalidReadBook() {
-        String aliceSession = manager.newSession("Alice");
+        String aliceSession = manager.newSession(alice);
 
         Exception e = assertThrows(BookException.class, () -> {
-            String result = manager.read(aliceSession, (long) 3, "Title");
+            manager.read(aliceSession, (long) 3, title);
         });
         assertEquals("Not found book with id: 3", e.getMessage());
     }
 
     @Test
     void testInvalidReadField() {
-        String aliceSession = manager.newSession("Alice");
+        String aliceSession = manager.newSession(alice);
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> {
-            String result = manager.read(aliceSession, (long) 1, "Editor");
+            manager.read(aliceSession, (long) 1, "Editor");
         });
         assertEquals("Editor is not a valid Book field.", e.getMessage());
     }
@@ -120,12 +125,12 @@ class SessionManagerTest {
 
         AtomicReference<String> failure = new AtomicReference<>();
 
-        String aliceSession = manager.newSession("Alice");
-        String bobSession = manager.newSession("Bob");
+        String aliceSession = manager.newSession(alice);
+        String bobSession = manager.newSession(bob);
 
         Thread aliceWrite = new Thread(() -> {
             assertDoesNotThrow(() ->
-                    manager.write(aliceSession, (long) 1, "Title", "New Title Alice")
+                    manager.write(aliceSession, (long) 1, title, "New Title Alice")
             );
         });
         aliceWrite.setUncaughtExceptionHandler((th, ex) -> failure.set(ex.getMessage()));
@@ -134,7 +139,7 @@ class SessionManagerTest {
         Thread bobWrite = new Thread(() -> {
             Exception e = assertThrows(LockException.class, () -> {
                         Thread.sleep(1000);
-                        manager.write(bobSession, (long) 1, "Title", "New Title Bob");
+                        manager.write(bobSession, (long) 1, title, "New Title Bob");
                     }
             );
             assertEquals("Another user has lock on book 1", e.getMessage());
@@ -159,12 +164,12 @@ class SessionManagerTest {
 
         AtomicReference<String> failure = new AtomicReference<>();
 
-        String aliceSession = manager.newSession("Alice");
-        String bobSession = manager.newSession("Bob");
+        String aliceSession = manager.newSession(alice);
+        String bobSession = manager.newSession(bob);
 
         Thread aliceWrite = new Thread(() -> {
             assertDoesNotThrow(() ->
-                manager.write(aliceSession, (long) 1, "Title", "New Title Alice")
+                manager.write(aliceSession, (long) 1, title, "New Title Alice")
             );
         });
         aliceWrite.setUncaughtExceptionHandler((th, ex) -> failure.set(ex.getMessage()));
@@ -173,7 +178,7 @@ class SessionManagerTest {
         Thread bobRead1 = new Thread(() -> {
             Exception e = assertThrows(LockException.class, () -> {
                         Thread.sleep(1000);
-                        manager.read(bobSession, (long) 1, "Title");
+                        manager.read(bobSession, (long) 1, title);
                     }
             );
             assertEquals("Another user has lock on book 1", e.getMessage());
@@ -184,7 +189,7 @@ class SessionManagerTest {
         Thread bobRead2 = new Thread(() -> {
             assertDoesNotThrow(() -> {
                         Thread.sleep(2000);
-                        assertEquals("Book Two", manager.read(bobSession, (long) 2, "Title"));
+                        assertEquals("Book Two", manager.read(bobSession, (long) 2, title));
                     }
             );
         });
