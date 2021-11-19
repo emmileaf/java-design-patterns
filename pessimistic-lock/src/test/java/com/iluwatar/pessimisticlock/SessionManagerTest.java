@@ -34,6 +34,7 @@ class SessionManagerTest {
         manager = new SessionManager(bookRepo);
     }
 
+    /** Test for the {@link SessionManager#newSession(String)} method */
     @Test
     void testNewSession() {
         String aliceSession = manager.newSession(alice);
@@ -42,6 +43,7 @@ class SessionManagerTest {
         assertEquals("1", bobSession);
     }
 
+    /** Test for the {@link SessionManager#removeSession(String)} method */
     @Test
     void testRemoveSession() {
         manager.newSession(alice);
@@ -50,6 +52,7 @@ class SessionManagerTest {
         assertEquals(1, manager.numSessions());
     }
 
+    /** Test for the {@link SessionManager#numSessions()}  method */
     @Test
     void testNumSessions() {
         assertEquals(0, manager.numSessions());
@@ -58,6 +61,9 @@ class SessionManagerTest {
         assertEquals(2, manager.numSessions());
     }
 
+    /** Test for the {@link SessionManager#write(String, Long, String, String)} method
+     * Exception case with invalid session provided.
+     */
     @Test
     void testInvalidWriteSession() {
         manager.newSession(alice);
@@ -69,6 +75,9 @@ class SessionManagerTest {
         assertEquals("Session 1 is not found.", e.getMessage());
     }
 
+    /** Test for the {@link SessionManager#write(String, Long, String, String)} method
+     * Exception case with invalid book provided.
+     */
     @Test
     void testInvalidWriteBook() {
         String aliceSession = manager.newSession(alice);
@@ -79,6 +88,9 @@ class SessionManagerTest {
         assertEquals("Not found book with id: 3", e.getMessage());
     }
 
+    /** Test for the {@link SessionManager#write(String, Long, String, String)} method
+     * Exception case with invalid field provided.
+     */
     @Test
     void testInvalidWriteField() {
         String aliceSession = manager.newSession(alice);
@@ -89,6 +101,9 @@ class SessionManagerTest {
         assertEquals("Editor is not a valid Book field.", e.getMessage());
     }
 
+    /** Test for the {@link SessionManager#read(String, Long, String)}  method
+     * Exception case with invalid session provided.
+     */
     @Test
     void testInvalidReadSession() {
         manager.newSession(alice);
@@ -100,6 +115,9 @@ class SessionManagerTest {
         assertEquals("Session 1 is not found.", e.getMessage());
     }
 
+    /** Test for the {@link SessionManager#read(String, Long, String)}  method
+     * Exception case with invalid book provided.
+     */
     @Test
     void testInvalidReadBook() {
         String aliceSession = manager.newSession(alice);
@@ -110,6 +128,9 @@ class SessionManagerTest {
         assertEquals("Not found book with id: 3", e.getMessage());
     }
 
+    /** Test for the {@link SessionManager#read(String, Long, String)}  method
+     * Exception case with invalid field provided.
+     */
     @Test
     void testInvalidReadField() {
         String aliceSession = manager.newSession(alice);
@@ -120,6 +141,9 @@ class SessionManagerTest {
         assertEquals("Editor is not a valid Book field.", e.getMessage());
     }
 
+    /** Test for the concurrent execution of {@link SessionManager#write(String, Long, String, String)} methods
+     * Both success and lock acquisition exception cases.
+     */
     @Test
     void testConcurrentWriteSessions() {
 
@@ -159,6 +183,10 @@ class SessionManagerTest {
         }
     }
 
+    /** Test for the concurrent execution of {@link SessionManager#write(String, Long, String, String)} and
+     * {@link SessionManager#read(String, Long, String)} methods
+     * Both success and lock acquisition exception cases.
+     */
     @Test
     void testConcurrentReadAfterWrite() {
 

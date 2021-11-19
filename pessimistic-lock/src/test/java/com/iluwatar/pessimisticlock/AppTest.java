@@ -39,6 +39,7 @@ class AppTest {
      * throws an exception.
      */
 
+    /** Tests that the App.main method executes without exceptions */
     @Test
     void shouldExecuteApplicationWithoutException() {
         assertDoesNotThrow(() -> App.main(new String[]{}));

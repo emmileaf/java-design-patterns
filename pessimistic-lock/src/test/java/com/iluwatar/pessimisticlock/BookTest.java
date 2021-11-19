@@ -18,26 +18,30 @@ public class BookTest {
         orig.setTitle("Book Author");
     }
 
-    @Test
-    void copyBookTest() {
-        Book copy = new Book(orig);
-        assertEquals(orig.getId(), copy.getId());
-        assertEquals(orig.getTitle(), copy.getTitle());
-        assertEquals(orig.getAuthor(), copy.getAuthor());
+    /** Test for the Book copy constructor */
+        @Test
+        void copyBookTest() {
+            Book copy = new Book(orig);
+            assertEquals(orig.getId(), copy.getId());
+            assertEquals(orig.getTitle(), copy.getTitle());
+            assertEquals(orig.getAuthor(), copy.getAuthor());
     }
 
+    /** Test for the {@link Book#getTitle()} and {@link Book#setTitle(String)} methods */
     @Test
     void getSetTitleTest() {
         orig.setTitle("New Title");
         assertEquals("New Title", orig.getTitle());
     }
 
+    /** Test for the {@link Book#getAuthor()} and {@link Book#setAuthor(String)} methods */
     @Test
     void getSetAuthorTest() {
         orig.setAuthor("New Author");
         assertEquals("New Author", orig.getAuthor());
     }
 
+    /** Test for the {@link Book#getId()} and {@link Book#setId(Long)} methods */
     @Test
     void getSetIdTest() {
         orig.setId((long) 5);

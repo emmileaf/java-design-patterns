@@ -27,6 +27,7 @@ public class BookRepositoryTest {
         bookOneReplace.setTitle("New Book One");
     }
 
+    /** Test for the {@link BookRepository#add(Book)} method */
     @Test
     void addBookTest() {
         assertDoesNotThrow(() -> repo.add(bookOne));
@@ -34,6 +35,7 @@ public class BookRepositoryTest {
         assertEquals("Duplicated book with id: 1", e.getMessage());
     }
 
+    /** Test for the {@link BookRepository#get(long)} method */
     @Test
     void getBookTest() {
         assertDoesNotThrow(() -> {
@@ -45,6 +47,7 @@ public class BookRepositoryTest {
         assertEquals("Not found book with id: 2", e.getMessage());
     }
 
+    /** Test for the {@link BookRepository#update(Book)} method */
     @Test
     void updateBookTest() {
         assertDoesNotThrow(() -> {
