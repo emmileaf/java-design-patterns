@@ -114,8 +114,9 @@ SessionManager: Could not acquire lock on book 1.
 EXPECTED: Bob is unable to perform READ on book 1 while Alice edits.
 ```
 
-
 ## Class diagram
+
+![alt text](./etc/pessimistic-lock.urm.png "Pessimistic lock pattern class diagram")
 
 ## Applicability
 
@@ -124,14 +125,13 @@ Use pessimistic locking for concurrency control:
 - When the cost of conflict is high
 - As a complementary method to optimistic locking
 
+## Tutorials
+- [Pessimistic Locking in JPA](https://www.baeldung.com/jpa-pessimistic-locking)
+
 ## Known uses
-- [Hibernate](https://allaroundjava.com/pessimistic-locking-hibernate/)
 - [JPA](https://www.objectdb.com/java/jpa/persistence/lock)
-
-## Consequences
-
+- [Hibernate](https://allaroundjava.com/pessimistic-locking-hibernate/)
 
 ## Credits
 - [Patterns of Enterprise Application Architecture, p426](https://martinfowler.com/eaaCatalog/pessimisticOfflineLock.html)
 - [Offline Concurrency Control](https://www.baeldung.com/cs/offline-concurrency-control)
-- [Pessimistic Locking in JPA](https://www.baeldung.com/jpa-pessimistic-locking)
