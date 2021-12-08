@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for {@link SessionManager}
+ * CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  */
 class SessionManagerTest {
 

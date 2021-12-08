@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests for {@link Book}
+ * Modified from package com.iluwatar.versionnumber
+ * CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  */
 public class BookTest {
     private Book orig = new Book();

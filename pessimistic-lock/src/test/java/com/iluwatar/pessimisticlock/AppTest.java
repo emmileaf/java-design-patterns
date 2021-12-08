@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * Application test
+ * CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  */
 class AppTest {
 

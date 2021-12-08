@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 /**
  * Tests for {@link BookRepository}
+ * Modified from package com.iluwatar.versionnumber
+ * CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  */
 public class BookRepositoryTest {
     private BookRepository repo;
