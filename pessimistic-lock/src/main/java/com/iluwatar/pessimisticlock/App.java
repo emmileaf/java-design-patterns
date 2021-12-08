@@ -7,6 +7,7 @@ public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
 
     /**
+     * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
      * Program entry point.
      *
      * @param args command line args

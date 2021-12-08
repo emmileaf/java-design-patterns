@@ -24,6 +24,8 @@
 package com.iluwatar.pessimisticlock;
 
 /**
+ * Class and all methods modified from package com.iluwatar.versionnumber
+ * CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  * When someone has tried to perform an illegal operation for a book in the book repository.
  * 1) Duplication scenario - trying to add a book that already exists in repo
  * 2) Not found scenario - trying to get a book that does not exist in repo

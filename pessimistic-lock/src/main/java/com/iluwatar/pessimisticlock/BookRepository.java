@@ -27,7 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Modified from package com.iluwatar.versionnumber
+ * Class and all methods modified from package com.iluwatar.versionnumber
+ * CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  * This repository represents simplified database.
  * As a typical database do, repository operates with copies of object.
  * So client and repo has different copies of book, which can lead to concurrency conflicts

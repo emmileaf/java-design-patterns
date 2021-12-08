@@ -23,7 +23,10 @@
 
 package com.iluwatar.pessimisticlock;
 
-/** Modified from package com.iluwatar.versionnumber */
+/**
+ * Class and all methods modified from package com.iluwatar.versionnumber
+ * CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
+ */
 public class Book {
     private Long id;
     private String title = "";

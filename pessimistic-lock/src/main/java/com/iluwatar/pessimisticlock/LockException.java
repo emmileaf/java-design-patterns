@@ -24,6 +24,7 @@
 package com.iluwatar.pessimisticlock;
 
 /**
+ * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  * Client tries to update a book that is locked (conflict detected).
  */
 public class LockException extends Exception {

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Class and all methods added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  * Session is a package-private class that represents a user session (with name and id assigned)
  * and holds a collection of books that it currently has access to (lock acquired).
  * Session creation and management is handled by the {@link SessionManager}.
@@ -14,7 +15,8 @@ class Session {
     private final String id;
     private final Map<Long, Book> books; // a collection of books where session has acquired lock
 
-    /** Constructor to initialize a session given user name and ID.
+    /**
+     * Constructor to initialize a session given user name and ID.
      *  @param user  - Name of the user owning this session
      *  @param id    - Session identifier string
      */

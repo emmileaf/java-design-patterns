@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
  * The SessionManager manages {@link Session} access to a {@link BookRepository} using exclusive read locks
  * Each user session requires lock to load record and perform any operation on Book objects from the repository
  */
@@ -18,6 +19,7 @@ public class SessionManager {
     private int sessionId;
 
     /**
+     * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
      * Constructor to initialize a session manager around a {@link BookRepository}.
      * @param repo - Book repository to manage access for
      */
@@ -29,6 +31,7 @@ public class SessionManager {
     }
 
     /**
+     * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
      * Creates new {@link Session} that connects a given user to the repository.
      * @param user - Name of user who owns this session
      * @return assigned ID for the newly created session
@@ -42,6 +45,7 @@ public class SessionManager {
     }
 
     /**
+     * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
      * Removes an existing {@link Session} and disconnect that user from the repository.
      * Releases all object locks still held by session, if any, without committing outstanding changes.
      * @param sessionId - Identifier of user session to remove
@@ -52,6 +56,7 @@ public class SessionManager {
     }
 
     /**
+     * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
      * Returns number of connected user sessions
      */
     public int numSessions() {
@@ -59,6 +64,7 @@ public class SessionManager {
     }
 
     /**
+     * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
      * Executes a write request initiated by a given user session on a book.
      * @param sessionId - Identifier of user session performing the operation
      * @param bookId - Identifier of book object to performing the operation on
@@ -98,6 +104,7 @@ public class SessionManager {
     }
 
     /**
+     * Added, CS427 Issue link: https://github.com/iluwatar/java-design-patterns/issues/1307
      * Executes a read request initiated by a given user session on a book.
      * @param sessionId - Identifier of user session performing the operation
      * @param bookId - Identifier of book object to performing the operation on
