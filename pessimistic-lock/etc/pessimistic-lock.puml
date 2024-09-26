@@ -1,0 +1,59 @@
+@startuml
+package com.iluwatar.pessimisticlock {
+  class App {
+    - LOGGER : Logger {static}
+    + App()
+    + main(args : String[]) {static}
+  }
+  class Book {
+    - author : String
+    - id : Long
+    - title : String
+    + Book()
+    + Book(book : Book)
+    + getAuthor() : String
+    + getId() : Long
+    + getTitle() : String
+    + setAuthor(author : String)
+    + setId(id : Long)
+    + setTitle(title : String)
+  }
+  class BookRepository {
+    - collection : Map<Long, Book>
+    + BookRepository()
+    + add(book : Book)
+    + get(bookId : Long) : Book
+    + update(book : Book)
+  }
+  class Session {
+    - books : Map<Long, Book>
+    - user : String
+    - id : String
+    ~ Session(user : String, id : String)
+    ~ getID() : String
+    ~ getUser() : String
+    ~ getLocks() : Set<Long>
+    ~ checkoutBook(book : Book)
+    ~ releaseBook(bookId : Long)
+    ~ editBook(bookId : Long, field : String, value : String) : Book
+    ~ readBook(bookId : Long, field : String) : String
+  }
+  class SessionManager {
+    - LOGGER : Logger
+    - locks : Map<Long, String>
+    - sessions : Map<String, Session>
+    - bookRepo : BookRepository
+    - sessionId : int
+    + SessionManager(repo : BookRepository)
+    + newSession(user : String) : String
+    + removeSession(sessionId : String)
+    + numSessions() : int
+    + write(sessionId : String, bookId : Long, writeField : String, writeValue : String)
+    + read(sessionId : String, bookId : Long, readField : String) : String
+    - hasLock(lockable : Long, owner : String) : boolean
+    - acquireLock(lockable : Long, owner : String)
+    - releaseLock(lockable : Long, owner : String)
+    - releaseAll(owner : String)
+  }
+}
+@enduml
